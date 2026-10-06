@@ -16,6 +16,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `metadata={"stuck_loop_detection": {"noop": False}}` skips the result check (identical
   calls are still caught), and `metadata={"stuck_loop_detection": False}` every check.
   (#237, fixes #208)
+- **Team members are built like the lead's subagents.** `spawn_team` built members
+  through a stale copy of the subagent factory: every member ran on a hardcoded
+  Anthropic model, with web search the lead had turned off (failing the whole run
+  without `ANTHROPIC_API_KEY` or the `duckduckgo` extra), and without the shell or
+  the domain tools a delegate gets. Members now use the subagent factory: the
+  lead's model unless `TeamMemberSpec.model` names one, the lead's web tools,
+  eviction, shell and workspace, and `subagent_extra_toolsets`. (#238, fixes #198)
+
+### Removed
+
+- **`DEFAULT_TEAM_MEMBER_MODEL`.** A member without a model now runs on the team
+  lead's.
 
 ## [0.3.47] - 2026-10-06
 
