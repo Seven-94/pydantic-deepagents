@@ -15,11 +15,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   background with a two-second timeout; a server that is down adds nothing.
   ([#216](https://github.com/vstorm-co/pydantic-deepagents/issues/216))
 
+- **Messages from outside the terminal into a live CLI session.**
+  `pydantic-deep tui --listen` accepts messages on a loopback HTTP endpoint
+  (`POST /messages`, a bearer token in `.pydantic-deep/session-endpoint.json`,
+  readable by the owner only), and `DeepApp.inject_external_message()` is the
+  same in process. A Slack thread, a Jira comment, CI or a webhook can steer a
+  running session or queue a follow-up, and starts a turn in an idle one; the
+  message is labelled with its `source`, and waits behind a turn the session
+  is about to start rather than running beside it. A session that cannot take
+  it - no agent, an active fork, a full queue - refuses with the reason.
+  ([#181](https://github.com/vstorm-co/pydantic-deepagents/issues/181))
+
 ### Fixed
 
 - **An `ollama:` model runs in the CLI without `OLLAMA_BASE_URL`.** Pydantic AI
   refuses Ollama with no host, so the documented default `localhost:11434` never
   worked; the CLI now uses it when the variable is unset.
+
+- **Steering that arrives too late for a run is no longer lost or delayed.**
+  The CLI drained one stale steering message after a run and left the rest for
+  some later turn; it now drains them all. Ones from outside the terminal become
+  follow-ups instead of being dropped with a warning only the terminal shows.
 
 ## [0.3.48] - 2026-10-06
 
